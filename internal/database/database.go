@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/nchdatta/ecomili-golang/config"
+	"github.com/nchdatta/ecomili-golang/internal/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -13,15 +14,14 @@ var DBConn *gorm.DB
 
 // Function to connect to the database
 func ConnectDB() {
-	config, err := config.LoadConfig()
+	cfg, err := config.LoadConfig()
 
 	if err != nil {
 		log.Fatalln("Failed to get database port!\n", err)
 	}
 
-	// Formatting Data Source Name (DSN) dynamically
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		config.Database.User, config.Database.Password, config.Database.Host, config.Database.Port, config.Database.Name)
+		cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -30,9 +30,9 @@ func ConnectDB() {
 
 	log.Println("DB connected!")
 
-	// if err := db.AutoMigrate(&models.Note{}); err != nil{
-	// 	log.Fatalln("Error Occured on migrating.\n", err)
-	// }
+	if err := db.AutoMigrate(&models.Role{}); err != nil {
+		log.Fatalln("Error Occured on migrating.\n", err)
+	}
 
 	log.Println("DB migrated!")
 	DBConn = db

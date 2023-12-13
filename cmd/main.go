@@ -10,19 +10,20 @@ import (
 	"github.com/nchdatta/ecomili-golang/internal/database"
 )
 
-// Initializing the database
+// Initializing the DB
 func init() {
 	database.ConnectDB()
 }
 
 func main() {
 	fiberApp := fiber.New()
-	config, err := config.LoadConfig()
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	routing.SetUpRoutes(fiberApp)
 
-	log.Fatal(fiberApp.Listen(fmt.Sprintf("%v", config.App.Port)))
+	log.Fatal(fiberApp.Listen(fmt.Sprintf(":%v", cfg.App.Port)))
+	log.Printf("Server Running on port: %v", cfg.App.Port)
 }
