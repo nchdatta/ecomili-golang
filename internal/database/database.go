@@ -17,7 +17,7 @@ func ConnectDB() {
 	cfg, err := config.LoadConfig()
 
 	if err != nil {
-		log.Fatalln("Failed to get database port!\n", err)
+		log.Fatalln("Failed to get database config.\n", err)
 	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -30,8 +30,17 @@ func ConnectDB() {
 
 	log.Println("DB connected!")
 
-	if err := db.AutoMigrate(&models.Role{}); err != nil {
-		log.Fatalln("Error Occured on migrating.\n", err)
+	if err := db.AutoMigrate(
+		&models.Role{},
+		&models.User{},
+		&models.Category{},
+		&models.CategoryTag{},
+		&models.Infobite{},
+		&models.News{},
+		&models.Tag{},
+		&models.NewsImage{},
+	); err != nil {
+		log.Fatalln("Error Occured on migration.\n", err)
 	}
 
 	log.Println("DB migrated!")

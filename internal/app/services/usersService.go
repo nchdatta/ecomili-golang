@@ -7,7 +7,7 @@ import (
 	"github.com/nchdatta/ecomili-golang/internal/models"
 )
 
-func GetAllRoles() ([]models.Role, error) {
+func GetAllUsers() ([]models.Role, error) {
 	roles := []models.Role{}
 
 	if err := database.DBConn.Find(&roles).Error; err != nil {
@@ -16,7 +16,7 @@ func GetAllRoles() ([]models.Role, error) {
 
 	return roles, nil
 }
-func GetRoleByID(id string) (*models.Role, error) {
+func GetUserByID(id string) (*models.Role, error) {
 	role := &models.Role{}
 
 	if err := database.DBConn.Find(&role).Where("id=?", id).Error; err != nil {
@@ -24,7 +24,7 @@ func GetRoleByID(id string) (*models.Role, error) {
 	}
 	return role, nil
 }
-func CreateRole(roleCreate *validations.RoleCreate) (*models.Role, error) {
+func CreateUser(roleCreate *validations.UserCreate) (*models.Role, error) {
 	role := models.Role{
 		ID:   uuid.New(),
 		Name: roleCreate.Name,
@@ -40,7 +40,7 @@ func CreateRole(roleCreate *validations.RoleCreate) (*models.Role, error) {
 	return &role, nil
 }
 
-func UpdatedRole(id string, roleUpdate *validations.RoleUpdate) (*models.Role, error) {
+func UpdatedUser(id string, roleUpdate *validations.UserUpdate) (*models.Role, error) {
 	role := &models.Role{
 		Name: roleUpdate.Name,
 	}
@@ -59,7 +59,7 @@ func UpdatedRole(id string, roleUpdate *validations.RoleUpdate) (*models.Role, e
 	return role, nil
 }
 
-func DeleteRole(id string) (*models.Role, error) {
+func DeleteUser(id string) (*models.Role, error) {
 	role := &models.Role{}
 
 	if err := database.DBConn.Find(&role).Where("id=?", id).Error; err != nil {

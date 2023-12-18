@@ -7,84 +7,84 @@ import (
 	"github.com/nchdatta/ecomili-golang/internal/helpers"
 )
 
-func AllRoles(c *fiber.Ctx) error {
-	roles, err := services.GetAllRoles()
+func AllUsers(c *fiber.Ctx) error {
+	users, err := services.GetAllUsers()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
 			helpers.NewResponse(false, err.Error(), err.Error()),
 		)
 	}
-	return c.JSON(helpers.NewResponse(true, "All Roles", roles))
+	return c.JSON(helpers.NewResponse(true, "All Users List", users))
 }
-func GetRoleByID(c *fiber.Ctx) error {
-	roleID := c.Params("id")
+func GetUserByID(c *fiber.Ctx) error {
+	userId := c.Params("id")
 
-	role, err := services.GetRoleByID(roleID)
+	role, err := services.GetRoleByID(userId)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
 		)
 	}
-	return c.JSON(helpers.NewResponse(true, "Role Details", role))
+	return c.JSON(helpers.NewResponse(true, "User Details", role))
 }
 
-func CreateRole(c *fiber.Ctx) error {
-	roleCreate := validations.RoleCreate{}
-	if err := c.BodyParser(&roleCreate); err != nil {
+func CreateUser(c *fiber.Ctx) error {
+	userCreate := validations.UserCreate{}
+	if err := c.BodyParser(&userCreate); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
 			helpers.NewResponse(false, "Invalid request payload", nil),
 		)
 	}
 
-	if err := validations.Validate.Struct(roleCreate); err != nil {
+	if err := validations.Validate.Struct(userCreate); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(
-			helpers.NewResponse(false, "Invalid role input", err.Error()),
+			helpers.NewResponse(false, "Invalid User input", err.Error()),
 		)
 	}
 
-	createdRole, err := services.CreateRole(&roleCreate)
+	createdUser, err := services.CreateUser(&userCreate)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
 			helpers.NewResponse(false, err.Error(), err.Error()),
 		)
 	}
 	return c.Status(fiber.StatusCreated).JSON(
-		helpers.NewResponse(true, "Role created successfully", createdRole),
+		helpers.NewResponse(true, "User created successfully", createdUser),
 	)
 }
 
-func UpdateRole(c *fiber.Ctx) error {
-	roleID := c.Params("id")
+func UpdateUser(c *fiber.Ctx) error {
+	userId := c.Params("id")
 
-	roleUpdate := validations.RoleUpdate{}
-	if err := c.BodyParser(&roleUpdate); err != nil {
+	userUpdate := validations.UserUpdate{}
+	if err := c.BodyParser(&userUpdate); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
 			helpers.NewResponse(false, "Invalid request payload", nil),
 		)
 	}
 
-	if err := validations.Validate.Struct(roleUpdate); err != nil {
+	if err := validations.Validate.Struct(userUpdate); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(
-			helpers.NewResponse(false, "Invalid role input", err.Error()),
+			helpers.NewResponse(false, "Invalid User input", err.Error()),
 		)
 	}
 
-	role, err := services.UpdatedRole(roleID, &roleUpdate)
+	user, err := services.UpdatedUser(userId, &userUpdate)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
 		)
 	}
-	return c.JSON(helpers.NewResponse(true, "Role Updated.", role))
+	return c.JSON(helpers.NewResponse(true, "User Updated.", user))
 }
-func DeleteRole(c *fiber.Ctx) error {
-	roleID := c.Params("id")
+func DeleteUser(c *fiber.Ctx) error {
+	userId := c.Params("id")
 
-	role, err := services.DeleteRole(roleID)
+	user, err := services.DeleteUser(userId)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
 		)
 	}
-	return c.JSON(helpers.NewResponse(true, "Role Deleted.", role))
+	return c.JSON(helpers.NewResponse(true, "User Deleted.", user))
 }
