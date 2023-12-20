@@ -82,7 +82,8 @@ type News struct {
 	Slug             string        `json:"slug" gorm:"uniqueIndex;type:varchar(250);not null"`
 	Category         *Category     `json:"category" gorm:"foreignKey:CategoryID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	CategoryID       uuid.NullUUID `json:"category_id" gorm:"type:varchar(36);default:null"`
-	Authors          *string       `json:"authors" gorm:"type:longtext"`
+	Author           *Author       `json:"author" gorm:"foreignKey:CategoryID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	AuthorID         uuid.NullUUID `json:"author_id" gorm:"type:varchar(36);default:null"`
 	FeaturedImage    *string       `json:"featured_image"`
 	ThumbnailURL     *string       `json:"thumbnail_url" gorm:"type:longtext"`
 	ShortDesc        *string       `json:"short_desc" gorm:"type:longtext"`
@@ -126,4 +127,20 @@ type Tag struct {
 	Status    Status    `json:"status" gorm:"default:active"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type Author struct {
+	gorm.Model
+	ID          uuid.UUID `json:"id" gorm:"type:varchar(36)"`
+	Name        string    `json:"name" gorm:"type:varchar(200);not null"`
+	Designation *string   `json:"designation" gorm:"type:varchar(150);default:null"`
+	Bio         *string   `json:"bio" gorm:"type:longtext;default:null"`
+	Avatar      *string   `json:"avatar" gorm:"type:longtext;default:null"`
+	Twitter     *string   `json:"twitter" gorm:"type:varchar(200);default:null"`
+	Linkedin    *string   `json:"linkedin" gorm:"type:varchar(200);default:null"`
+	Email       *string   `json:"email" gorm:"type:varchar(200);default:null"`
+	News        []News    `json:"news" gorm:"foreignKey:ID;"`
+	Status      Status    `json:"status" gorm:"default:active"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
