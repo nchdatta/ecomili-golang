@@ -19,10 +19,10 @@ type User struct {
 	OTPVerified bool          `json:"otp_verified" gorm:"default:false"`
 	Role        *Role         `json:"role" gorm:"foreignKey:RoleID;default:null"`
 	RoleID      uuid.NullUUID `json:"role_id" gorm:"type:varchar(36);default:null"`
-	Infobite    []Infobite    `json:"infobites" gorm:"foreignKey:ID"`
-	Category    []Category    `json:"categories" gorm:"foreignKey:ID"`
-	AddedNews   []News        `json:"added_news" gorm:"foreignKey:AddedByID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	UpdatedNews []News        `json:"updated_news" gorm:"foreignKey:UpdatedByID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Infobite    []Infobite    `json:"infobites"`
+	Category    []Category    `json:"categories"`
+	AddedNews   []News        `json:"added_news" gorm:"foreignKey:AddedByID;"`
+	UpdatedNews []News        `json:"updated_news" gorm:"foreignKey:UpdatedByID;"`
 	CreatedAt   time.Time     `json:"created_at"`
 	UpdatedAt   time.Time     `json:"updated_at"`
 }
@@ -54,13 +54,13 @@ type Category struct {
 	ID           uuid.UUID     `json:"id" gorm:"type:varchar(36)"`
 	Name         string        `json:"name" gorm:"uniqueIndex;type:varchar(200);not null"`
 	Icon         *string       `json:"icon" gorm:"type:longtext;default:null"`
-	Tags         []CategoryTag `json:"tags" gorm:"foreignKey:CategoryID"`
+	Tags         []CategoryTag `json:"tags"`
 	IsSpecial    bool          `json:"is_special" gorm:"default:false"`
 	ParentID     uuid.NullUUID `json:"parent_id" gorm:"type:varchar(36);default:null"`
 	Status       Status        `json:"status" gorm:"default:active"`
 	CatAddedBy   *User         `json:"cat_added_by" gorm:"foreignKey:CatAddedByID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	CatAddedByID uuid.NullUUID `json:"cat_added_by_id" gorm:"type:varchar(36);default:null"`
-	News         []News        `json:"news" gorm:"foreignKey:CategoryID"`
+	News         []News        `json:"news"`
 	CreatedAt    time.Time     `json:"created_at"`
 	UpdatedAt    time.Time     `json:"updated_at"`
 }
@@ -103,8 +103,8 @@ type News struct {
 	UpdatedBy        *User         `json:"updated_by" gorm:"type:varchar(36);foreignKey:UpdatedByID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	AddedByID        uuid.NullUUID `json:"added_by_id" gorm:"type:varchar(36);"`
 	UpdatedByID      uuid.NullUUID `json:"updated_by_id" gorm:"type:varchar(36);"`
-	Tags             []Tag         `json:"tags" gorm:"foreignKey:NewsID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Images           []NewsImage   `json:"images" gorm:"foreignKey:NewsID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Tags             []Tag         `json:"tags"`
+	Images           []NewsImage   `json:"images"`
 	Status           NewsStatus    `json:"status" gorm:"default:draft"`
 	CreatedAt        time.Time     `json:"created_at"`
 	UpdatedAt        time.Time     `json:"updated_at"`
@@ -139,7 +139,7 @@ type Author struct {
 	Twitter     *string   `json:"twitter" gorm:"type:varchar(200);default:null"`
 	Linkedin    *string   `json:"linkedin" gorm:"type:varchar(200);default:null"`
 	Email       *string   `json:"email" gorm:"type:varchar(200);default:null"`
-	News        []News    `json:"news" gorm:"foreignKey:ID;"`
+	News        []News    `json:"news"`
 	Status      Status    `json:"status" gorm:"default:active"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
