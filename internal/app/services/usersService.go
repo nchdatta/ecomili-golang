@@ -42,6 +42,7 @@ func CreateUser(roleCreate *validations.UserCreate) (*models.Role, error) {
 
 func UpdatedUser(id string, roleUpdate *validations.UserUpdate) (*models.Role, error) {
 	role := &models.Role{
+		ID:   uuid.New(),
 		Name: roleUpdate.Name,
 	}
 

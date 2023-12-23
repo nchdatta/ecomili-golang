@@ -16,9 +16,8 @@ type User struct {
 	Email       string         `json:"email" gorm:"uniqueIndex;type:varchar(200);not null"`
 	Password    string         `json:"password" gorm:"type:varchar(250);not null"`
 	Avatar      sql.NullString `json:"avatar" gorm:"default:null"`
-	OTP         *int           `json:"otp" gorm:"default:null"`
+	OTP         sql.NullInt16  `json:"otp" gorm:"default:null"`
 	OTPVerified bool           `json:"otp_verified" gorm:"default:false"`
-	Role        *Role          `json:"role" gorm:"foreignKey:RoleID;default:null"`
 	RoleID      uuid.NullUUID  `json:"role_id" gorm:"type:varchar(36);default:null"`
 	Infobite    []Infobite     `json:"infobites"`
 	Category    []Category     `json:"categories"`
@@ -38,14 +37,13 @@ type Role struct {
 
 type Infobite struct {
 	gorm.Model
-	ID          uuid.UUID      `json:"id" gorm:"type:varchar(36)"`
-	Title       string         `json:"title" gorm:"uniqueIndex;type:varchar(150);not null"`
-	Picture     sql.NullString `json:"picture" gorm:"type:longtext;default:null"`
-	UpdatedBy   *User          `json:"updated_by" gorm:"type:varchar(36);foreignKey:UpdatedByID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	UpdatedByID uuid.NullUUID  `json:"updated_by_id" gorm:"default:null"`
-	Status      Status         `gorm:"default:active"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+	ID        uuid.UUID      `json:"id" gorm:"type:varchar(36)"`
+	Title     string         `json:"title" gorm:"uniqueIndex;type:varchar(150);not null"`
+	Picture   sql.NullString `json:"picture" gorm:"type:longtext;default:null"`
+	UserID    uuid.NullUUID  `json:"user_id"`
+	Status    Status         `gorm:"default:active"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
 }
 
 type Category struct {
@@ -58,6 +56,7 @@ type Category struct {
 	ParentID  uuid.NullUUID  `json:"parent_id" gorm:"type:varchar(36);default:null"`
 	Status    Status         `json:"status" gorm:"default:active"`
 	News      []News         `json:"news"`
+	UserID    uuid.NullUUID  `json:"user_id"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 }
@@ -66,8 +65,7 @@ type CategoryTag struct {
 	gorm.Model
 	ID         uuid.UUID     `json:"id" gorm:"type:varchar(36)"`
 	Name       string        `gorm:"uniqueIndex;type:varchar(150);not null"`
-	Category   *Category     `gorm:"foreignKey:CategoryID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	CategoryID uuid.NullUUID `json:"cat_id" gorm:"type:varchar(36);default:null"`
+	CategoryID uuid.NullUUID `json:"category_id" gorm:"type:varchar(36);default:null"`
 	CreatedAt  time.Time     `json:"created_at"`
 	UpdatedAt  time.Time     `json:"updated_at"`
 }
@@ -79,7 +77,6 @@ type News struct {
 	Slug             string         `json:"slug" gorm:"uniqueIndex;type:varchar(250);not null"`
 	Category         Category       `json:"category" gorm:"foreignKey:CategoryID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	CategoryID       uuid.UUID      `json:"category_id" gorm:"type:varchar(36);default:null"`
-	Author           *Author        `json:"author" gorm:"foreignKey:CategoryID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	AuthorID         uuid.NullUUID  `json:"author_id" gorm:"type:varchar(36);default:null"`
 	FeaturedImage    sql.NullString `json:"featured_image"`
 	ThumbnailURL     sql.NullString `json:"thumbnail_url" gorm:"type:longtext"`
@@ -107,7 +104,6 @@ type NewsImage struct {
 	gorm.Model
 	ID     uuid.UUID      `json:"id" gorm:"type:varchar(36)"`
 	Image  sql.NullString `json:"image" gorm:"type:longtext"`
-	News   News           `json:"news" gorm:"foreignKey:NewsID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	NewsID uuid.UUID      `json:"news_id" gorm:"type:varchar(36)"`
 }
 
@@ -115,7 +111,6 @@ type Tag struct {
 	gorm.Model
 	ID        uuid.UUID `json:"id" gorm:"type:varchar(36)"`
 	Name      string    `json:"name" gorm:"type:varchar(200);not null"`
-	News      News      `json:"news" gorm:"foreignKey:NewsID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	NewsID    uuid.UUID `json:"news_id" gorm:"type:varchar(36);not null"`
 	Status    Status    `json:"status" gorm:"default:active"`
 	CreatedAt time.Time `json:"created_at"`
