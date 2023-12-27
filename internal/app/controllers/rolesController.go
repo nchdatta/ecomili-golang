@@ -1,8 +1,9 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/nchdatta/ecomili-golang/internal/app/services"
 	"github.com/nchdatta/ecomili-golang/internal/app/validations"
 	"github.com/nchdatta/ecomili-golang/internal/helpers"
@@ -18,7 +19,12 @@ func AllRoles(c *fiber.Ctx) error {
 	return c.JSON(helpers.NewResponse(true, "All Roles", roles))
 }
 func GetRoleByID(c *fiber.Ctx) error {
-	roleID := c.Params("id")
+	roleID, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			helpers.NewResponse(false, err.Error(), nil),
+		)
+	}
 
 	role, err := services.GetRoleByID(roleID)
 	if err != nil {
@@ -55,7 +61,12 @@ func CreateRole(c *fiber.Ctx) error {
 }
 
 func UpdateRole(c *fiber.Ctx) error {
-	roleID := uuid.MustParse(c.Params("id"))
+	roleID, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			helpers.NewResponse(false, err.Error(), nil),
+		)
+	}
 
 	roleUpdate := validations.RoleUpdate{}
 	if err := c.BodyParser(&roleUpdate); err != nil {
@@ -79,7 +90,12 @@ func UpdateRole(c *fiber.Ctx) error {
 	return c.JSON(helpers.NewResponse(true, "Role Updated.", role))
 }
 func DeleteRole(c *fiber.Ctx) error {
-	roleID := uuid.MustParse(c.Params("id"))
+	roleID, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			helpers.NewResponse(false, err.Error(), nil),
+		)
+	}
 
 	role, err := services.DeleteRole(roleID)
 	if err != nil {

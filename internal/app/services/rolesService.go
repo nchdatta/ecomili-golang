@@ -1,12 +1,12 @@
 package services
 
 import (
-	"log"
+	"errors"
 
-	"github.com/google/uuid"
 	"github.com/nchdatta/ecomili-golang/internal/app/validations"
 	"github.com/nchdatta/ecomili-golang/internal/database"
 	"github.com/nchdatta/ecomili-golang/internal/models"
+	"gorm.io/gorm"
 )
 
 func GetAllRoles() ([]models.Role, error) {
@@ -18,12 +18,16 @@ func GetAllRoles() ([]models.Role, error) {
 
 	return roles, nil
 }
-func GetRoleByID(id string) (*models.Role, error) {
+func GetRoleByID(id int) (*models.Role, error) {
 	role := &models.Role{}
 
-	if err := database.DBConn.Find(&role).Where("id=?", id).Error; err != nil {
-		return nil, err
+	result := database.DBConn.Where("id = ?", id).First(&role)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, errors.New("ROLE NOT FOUND")
+	} else if result.Error != nil {
+		return nil, result.Error
 	}
+
 	return role, nil
 }
 func CreateRole(roleCreate *validations.RoleCreate) (*models.Role, error) {
@@ -31,8 +35,9 @@ func CreateRole(roleCreate *validations.RoleCreate) (*models.Role, error) {
 		Name: roleCreate.Name,
 	}
 
-	if err := database.DBConn.Find(&role).Where("name=?", roleCreate.Name).Error; err != nil {
-		return nil, err
+	result := database.DBConn.Where("name = ?", roleCreate.Name).First(&role)
+	if result != nil {
+		return nil, errors.New("ROLE ALREADY EXISTS")
 	}
 
 	if err := database.DBConn.Create(&role).Error; err != nil {
@@ -41,35 +46,34 @@ func CreateRole(roleCreate *validations.RoleCreate) (*models.Role, error) {
 	return &role, nil
 }
 
-func UpdatedRole(id uuid.UUID, roleUpdate *validations.RoleUpdate) (*models.Role, error) {
-	role := &models.Role{
-		Name: roleUpdate.Name,
+func UpdatedRole(id int, roleUpdate *validations.RoleUpdate) (*models.Role, error) {
+	role := &models.Role{}
+
+	result := database.DBConn.Where("id = ?", id).First(&role)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, errors.New("ROLE NOT FOUND")
+	} else if result.Error != nil {
+		return nil, result.Error
 	}
 
-	if err := database.DBConn.Find(&models.Role{}, id).Error; err != nil {
-		log.Println(err)
-		return nil, err
-	}
-
-	if err := database.DBConn.Find(&role, roleUpdate.Name).Error; err != nil {
-		return nil, err
-	}
-
+	role.Name = roleUpdate.Name
 	if err := database.DBConn.Save(&role).Error; err != nil {
 		return nil, err
 	}
 	return role, nil
 }
 
-func DeleteRole(id uuid.UUID) (*models.Role, error) {
+func DeleteRole(id int) (*models.Role, error) {
 	role := &models.Role{}
 
-	if err := database.DBConn.Find(&role, id).Error; err != nil {
-		log.Println(err)
-		return nil, err
+	result := database.DBConn.Where("id = ?", id).First(&role)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, errors.New("ROLE NOT FOUND")
+	} else if result.Error != nil {
+		return nil, result.Error
 	}
 
-	if err := database.DBConn.Delete(&role).Where("id=?", id).Error; err != nil {
+	if err := database.DBConn.Where("id = ?", id).Delete(&role).Error; err != nil {
 		return nil, err
 	}
 	return role, nil

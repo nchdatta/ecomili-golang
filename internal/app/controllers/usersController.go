@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/nchdatta/ecomili-golang/internal/app/services"
 	"github.com/nchdatta/ecomili-golang/internal/app/validations"
@@ -17,7 +19,12 @@ func AllUsers(c *fiber.Ctx) error {
 	return c.JSON(helpers.NewResponse(true, "All Users List", users))
 }
 func GetUserByID(c *fiber.Ctx) error {
-	userId := c.Params("id")
+	userId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			helpers.NewResponse(false, err.Error(), nil),
+		)
+	}
 
 	role, err := services.GetRoleByID(userId)
 	if err != nil {
@@ -54,7 +61,12 @@ func CreateUser(c *fiber.Ctx) error {
 }
 
 func UpdateUser(c *fiber.Ctx) error {
-	userId := c.Params("id")
+	userId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			helpers.NewResponse(false, err.Error(), nil),
+		)
+	}
 
 	userUpdate := validations.UserUpdate{}
 	if err := c.BodyParser(&userUpdate); err != nil {
@@ -78,7 +90,12 @@ func UpdateUser(c *fiber.Ctx) error {
 	return c.JSON(helpers.NewResponse(true, "User Updated.", user))
 }
 func DeleteUser(c *fiber.Ctx) error {
-	userId := c.Params("id")
+	userId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			helpers.NewResponse(false, err.Error(), nil),
+		)
+	}
 
 	user, err := services.DeleteUser(userId)
 	if err != nil {

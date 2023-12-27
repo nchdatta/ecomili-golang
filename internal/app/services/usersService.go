@@ -1,9 +1,12 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/nchdatta/ecomili-golang/internal/app/validations"
 	"github.com/nchdatta/ecomili-golang/internal/database"
 	"github.com/nchdatta/ecomili-golang/internal/models"
+	"gorm.io/gorm"
 )
 
 func GetAllUsers() (*[]models.User, error) {
@@ -15,11 +18,14 @@ func GetAllUsers() (*[]models.User, error) {
 
 	return &users, nil
 }
-func GetUserByID(id string) (*models.User, error) {
+func GetUserByID(id int) (*models.User, error) {
 	user := &models.User{}
 
-	if err := database.DBConn.Find(&user).Where("id=?", id).Error; err != nil {
-		return nil, err
+	result := database.DBConn.Where("id = ?", id).First(&user)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, errors.New("USER NOT FOUND")
+	} else if result.Error != nil {
+		return nil, result.Error
 	}
 	return user, nil
 }
@@ -36,8 +42,8 @@ func CreateUser(userCreate *validations.UserCreate) (*models.User, error) {
 		user.Avatar = userCreate.Avatar
 	}
 
-	if err := database.DBConn.Find(&user).Where("name=?", userCreate.Name).Error; err != nil {
-		return nil, err
+	if result := database.DBConn.Find(&user).Where("email = ?", userCreate.Email); result != nil {
+		return nil, errors.New("USER ALREADY EXISTS WITH THE EMAIL")
 	}
 
 	if err := database.DBConn.Create(&user).Error; err != nil {
@@ -46,25 +52,24 @@ func CreateUser(userCreate *validations.UserCreate) (*models.User, error) {
 	return user, nil
 }
 
-func UpdatedUser(id string, userUpdate *validations.UserUpdate) (*models.User, error) {
-	user := &models.User{
-		Name:     userUpdate.Name,
-		Email:    userUpdate.Email,
-		Phone:    userUpdate.Phone,
-		Password: userUpdate.Password,
-		RoleID:   uint(userUpdate.RoleID),
+func UpdatedUser(id int, userUpdate *validations.UserUpdate) (*models.User, error) {
+	user := &models.User{}
+
+	result := database.DBConn.Where("id = ?", id).First(&user)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, errors.New("USER NOT FOUND")
+	} else if result.Error != nil {
+		return nil, result.Error
 	}
+
+	user.Name = userUpdate.Name
+	user.Email = userUpdate.Email
+	user.Phone = userUpdate.Phone
+	user.Password = userUpdate.Password
+	user.RoleID = uint(userUpdate.RoleID)
 
 	if userUpdate.Avatar.Valid {
 		user.Avatar = userUpdate.Avatar
-	}
-
-	if err := database.DBConn.Find(&user).Where("id=?", id).Error; err != nil {
-		return nil, err
-	}
-
-	if err := database.DBConn.Find(&user).Where("name=?", userUpdate.Name).Error; err != nil {
-		return nil, err
 	}
 
 	if err := database.DBConn.Save(&user).Error; err != nil {
@@ -73,11 +78,14 @@ func UpdatedUser(id string, userUpdate *validations.UserUpdate) (*models.User, e
 	return user, nil
 }
 
-func DeleteUser(id string) (*models.User, error) {
+func DeleteUser(id int) (*models.User, error) {
 	user := &models.User{}
 
-	if err := database.DBConn.Find(&user).Where("id=?", id).Error; err != nil {
-		return nil, err
+	result := database.DBConn.Where("id = ?", id).First(&user)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, errors.New("USER NOT FOUND")
+	} else if result.Error != nil {
+		return nil, result.Error
 	}
 
 	if err := database.DBConn.Delete(&user).Where("id=?", id).Error; err != nil {
