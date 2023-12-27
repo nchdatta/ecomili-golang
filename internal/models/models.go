@@ -19,8 +19,8 @@ type User struct {
 	OTPVerified bool           `json:"otp_verified" gorm:"default:false"`
 	RoleID      uint           `json:"role_id" gorm:"index;default:null"`
 	Role        Role
-	Infobite    []Infobite `json:"infobites"`
-	Category    []Category `json:"categories"`
+	Infobite    []Infobite `json:"infobites" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Category    []Category `json:"categories" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Role struct {
@@ -28,7 +28,7 @@ type Role struct {
 	ID     uint   `json:"id" gorm:"primaryKey"`
 	Name   string `json:"name" gorm:"uniqueIndex;type:varchar(100);not null"`
 	Status Status `json:"status" gorm:"type:enum('active', 'inactive');default:'active'"`
-	Users  []User `json:"users"`
+	Users  []User `json:"users" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Infobite struct {
@@ -46,11 +46,11 @@ type Category struct {
 	ID        uint           `json:"id" gorm:"primaryKey"`
 	Name      string         `json:"name" gorm:"uniqueIndex;type:varchar(200);not null"`
 	Icon      sql.NullString `json:"icon" gorm:"type:longtext;default:null"`
-	Tags      []CategoryTag  `json:"tags"`
+	Tags      []CategoryTag  `json:"tags" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	IsSpecial bool           `json:"is_special" gorm:"default:false"`
 	ParentID  uint           `json:"parent_id" gorm:"default:null"`
 	Status    Status         `json:"status" gorm:"default:active"`
-	News      []News         `json:"news"`
+	News      []News         `json:"news" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	UserID    uint           `json:"user_id" gorm:"index"`
 	User      User
 }
@@ -86,8 +86,8 @@ type News struct {
 	VersionCreated   time.Time      `json:"version_created"`
 	Language         *string        `json:"language" gorm:"type:varchar(20)"`
 	Type             *string        `json:"type" gorm:"type:varchar(20)"`
-	Tags             []Tag          `json:"tags"`
-	Images           []NewsImage    `json:"images"`
+	Tags             []Tag          `json:"tags" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Images           []NewsImage    `json:"images" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Status           NewsStatus     `json:"status" gorm:"default:draft"`
 }
 
@@ -118,6 +118,6 @@ type Author struct {
 	Twitter     sql.NullString `json:"twitter" gorm:"type:varchar(200);default:null"`
 	Linkedin    sql.NullString `json:"linkedin" gorm:"type:varchar(200);default:null"`
 	Email       sql.NullString `json:"email" gorm:"type:varchar(200);default:null"`
-	News        []News         `json:"news"`
+	News        []News         `json:"news" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Status      Status         `json:"status" gorm:"default:active"`
 }
