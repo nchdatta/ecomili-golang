@@ -1,74 +1,87 @@
 package services
 
 import (
-	"github.com/google/uuid"
 	"github.com/nchdatta/ecomili-golang/internal/app/validations"
 	"github.com/nchdatta/ecomili-golang/internal/database"
 	"github.com/nchdatta/ecomili-golang/internal/models"
 )
 
-func GetAllUsers() ([]models.Role, error) {
-	roles := []models.Role{}
+func GetAllUsers() (*[]models.User, error) {
+	users := []models.User{}
 
-	if err := database.DBConn.Find(&roles).Error; err != nil {
+	if err := database.DBConn.Find(&users).Error; err != nil {
 		return nil, err
 	}
 
-	return roles, nil
+	return &users, nil
 }
-func GetUserByID(id string) (*models.Role, error) {
-	role := &models.Role{}
+func GetUserByID(id string) (*models.User, error) {
+	user := &models.User{}
 
-	if err := database.DBConn.Find(&role).Where("id=?", id).Error; err != nil {
+	if err := database.DBConn.Find(&user).Where("id=?", id).Error; err != nil {
 		return nil, err
 	}
-	return role, nil
+	return user, nil
 }
-func CreateUser(roleCreate *validations.UserCreate) (*models.Role, error) {
-	role := models.Role{
-		ID:   uuid.New(),
-		Name: roleCreate.Name,
+func CreateUser(userCreate *validations.UserCreate) (*models.User, error) {
+	user := &models.User{
+		Name:     userCreate.Name,
+		Phone:    userCreate.Phone,
+		Password: userCreate.Password,
+		Email:    userCreate.Email,
+		RoleID:   uint(userCreate.RoleID),
 	}
 
-	if err := database.DBConn.Find(&role).Where("name=?", roleCreate.Name).Error; err != nil {
+	if userCreate.Avatar.Valid {
+		user.Avatar = userCreate.Avatar
+	}
+
+	if err := database.DBConn.Find(&user).Where("name=?", userCreate.Name).Error; err != nil {
 		return nil, err
 	}
 
-	if err := database.DBConn.Create(&role).Error; err != nil {
+	if err := database.DBConn.Create(&user).Error; err != nil {
 		return nil, err
 	}
-	return &role, nil
-}
-
-func UpdatedUser(id string, roleUpdate *validations.UserUpdate) (*models.Role, error) {
-	role := &models.Role{
-		ID:   uuid.New(),
-		Name: roleUpdate.Name,
-	}
-
-	if err := database.DBConn.Find(&role).Where("id=?", id).Error; err != nil {
-		return nil, err
-	}
-
-	if err := database.DBConn.Find(&role).Where("name=?", roleUpdate.Name).Error; err != nil {
-		return nil, err
-	}
-
-	if err := database.DBConn.Save(&role).Error; err != nil {
-		return nil, err
-	}
-	return role, nil
+	return user, nil
 }
 
-func DeleteUser(id string) (*models.Role, error) {
-	role := &models.Role{}
+func UpdatedUser(id string, userUpdate *validations.UserUpdate) (*models.User, error) {
+	user := &models.User{
+		Name:     userUpdate.Name,
+		Email:    userUpdate.Email,
+		Phone:    userUpdate.Phone,
+		Password: userUpdate.Password,
+		RoleID:   uint(userUpdate.RoleID),
+	}
 
-	if err := database.DBConn.Find(&role).Where("id=?", id).Error; err != nil {
+	if userUpdate.Avatar.Valid {
+		user.Avatar = userUpdate.Avatar
+	}
+
+	if err := database.DBConn.Find(&user).Where("id=?", id).Error; err != nil {
 		return nil, err
 	}
 
-	if err := database.DBConn.Delete(&role).Where("id=?", id).Error; err != nil {
+	if err := database.DBConn.Find(&user).Where("name=?", userUpdate.Name).Error; err != nil {
 		return nil, err
 	}
-	return role, nil
+
+	if err := database.DBConn.Save(&user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func DeleteUser(id string) (*models.User, error) {
+	user := &models.User{}
+
+	if err := database.DBConn.Find(&user).Where("id=?", id).Error; err != nil {
+		return nil, err
+	}
+
+	if err := database.DBConn.Delete(&user).Where("id=?", id).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
 }

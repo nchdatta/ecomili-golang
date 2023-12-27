@@ -4,80 +4,73 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	gorm.Model
-	ID          uuid.UUID      `json:"id" gorm:"type:varchar(36)"`
+	ID          uint           `json:"id" gorm:"primaryKey"`
 	Name        string         `json:"name" gorm:"uniqueIndex;type:varchar(200);not null"`
-	Phone       *string        `json:"phone" gorm:"uniqueIndex;type:varchar(12)"`
+	Phone       string         `json:"phone" gorm:"uniqueIndex;type:varchar(12)"`
 	Email       string         `json:"email" gorm:"uniqueIndex;type:varchar(200);not null"`
 	Password    string         `json:"password" gorm:"type:varchar(250);not null"`
 	Avatar      sql.NullString `json:"avatar" gorm:"default:null"`
-	OTP         sql.NullInt16  `json:"otp" gorm:"default:null"`
+	OTP         sql.NullInt32  `json:"otp" gorm:"default:null"`
 	OTPVerified bool           `json:"otp_verified" gorm:"default:false"`
-	RoleID      uuid.NullUUID  `json:"role_id" gorm:"type:varchar(36);default:null"`
-	Infobite    []Infobite     `json:"infobites"`
-	Category    []Category     `json:"categories"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+	RoleID      uint           `json:"role_id" gorm:"index;default:null"`
+	Role        Role
+	Infobite    []Infobite `json:"infobites"`
+	Category    []Category `json:"categories"`
 }
 
 type Role struct {
 	gorm.Model
-	ID        uuid.UUID `json:"id" gorm:"type:varchar(36)"`
-	Name      string    `json:"name" gorm:"uniqueIndex;type:varchar(100);not null"`
-	Status    Status    `json:"status" gorm:"type:enum('active', 'inactive');default:'active'"`
-	Users     []User    `json:"users"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID     uint   `json:"id" gorm:"primaryKey"`
+	Name   string `json:"name" gorm:"uniqueIndex;type:varchar(100);not null"`
+	Status Status `json:"status" gorm:"type:enum('active', 'inactive');default:'active'"`
+	Users  []User `json:"users"`
 }
 
 type Infobite struct {
 	gorm.Model
-	ID        uuid.UUID      `json:"id" gorm:"type:varchar(36)"`
-	Title     string         `json:"title" gorm:"uniqueIndex;type:varchar(150);not null"`
-	Picture   sql.NullString `json:"picture" gorm:"type:longtext;default:null"`
-	UserID    uuid.NullUUID  `json:"user_id"`
-	Status    Status         `gorm:"default:active"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	ID      uint           `json:"id" gorm:"primaryKey"`
+	Title   string         `json:"title" gorm:"uniqueIndex;type:varchar(150);not null"`
+	Picture sql.NullString `json:"picture" gorm:"type:longtext;default:null"`
+	UserID  uint           `json:"user_id" gorm:"index"`
+	User    User
+	Status  Status `gorm:"default:active"`
 }
 
 type Category struct {
 	gorm.Model
-	ID        uuid.UUID      `json:"id" gorm:"type:varchar(36)"`
+	ID        uint           `json:"id" gorm:"primaryKey"`
 	Name      string         `json:"name" gorm:"uniqueIndex;type:varchar(200);not null"`
 	Icon      sql.NullString `json:"icon" gorm:"type:longtext;default:null"`
 	Tags      []CategoryTag  `json:"tags"`
 	IsSpecial bool           `json:"is_special" gorm:"default:false"`
-	ParentID  uuid.NullUUID  `json:"parent_id" gorm:"type:varchar(36);default:null"`
+	ParentID  uint           `json:"parent_id" gorm:"default:null"`
 	Status    Status         `json:"status" gorm:"default:active"`
 	News      []News         `json:"news"`
-	UserID    uuid.NullUUID  `json:"user_id"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	UserID    uint           `json:"user_id" gorm:"index"`
+	User      User
 }
 
 type CategoryTag struct {
 	gorm.Model
-	ID         uuid.UUID     `json:"id" gorm:"type:varchar(36)"`
-	Name       string        `gorm:"uniqueIndex;type:varchar(150);not null"`
-	CategoryID uuid.NullUUID `json:"category_id" gorm:"type:varchar(36);default:null"`
-	CreatedAt  time.Time     `json:"created_at"`
-	UpdatedAt  time.Time     `json:"updated_at"`
+	ID         uint   `json:"id" gorm:"primaryKey"`
+	Name       string `gorm:"uniqueIndex;type:varchar(150);not null"`
+	CategoryID uint   `json:"category_id" gorm:"index;default:null"`
+	Category   Category
 }
 
 type News struct {
 	gorm.Model
-	ID               uuid.UUID      `json:"id" gorm:"type:varchar(36)"`
+	ID               uint           `json:"id" gorm:"primaryKey"`
 	Title            string         `json:"title" gorm:"type:varchar(250);not null"`
 	Slug             string         `json:"slug" gorm:"uniqueIndex;type:varchar(250);not null"`
-	Category         Category       `json:"category" gorm:"foreignKey:CategoryID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	CategoryID       uuid.UUID      `json:"category_id" gorm:"type:varchar(36);default:null"`
-	AuthorID         uuid.NullUUID  `json:"author_id" gorm:"type:varchar(36);default:null"`
+	Category         Category       `json:"category"`
+	CategoryID       uint           `json:"category_id" gorm:"index;default:null"`
+	AuthorID         uint           `json:"author_id" gorm:"default:null"`
 	FeaturedImage    sql.NullString `json:"featured_image"`
 	ThumbnailURL     sql.NullString `json:"thumbnail_url" gorm:"type:longtext"`
 	ShortDesc        sql.NullString `json:"short_desc" gorm:"type:longtext"`
@@ -96,30 +89,28 @@ type News struct {
 	Tags             []Tag          `json:"tags"`
 	Images           []NewsImage    `json:"images"`
 	Status           NewsStatus     `json:"status" gorm:"default:draft"`
-	CreatedAt        time.Time      `json:"created_at"`
-	UpdatedAt        time.Time      `json:"updated_at"`
 }
 
 type NewsImage struct {
 	gorm.Model
-	ID     uuid.UUID      `json:"id" gorm:"type:varchar(36)"`
+	ID     uint           `json:"id" gorm:"primaryKey"`
 	Image  sql.NullString `json:"image" gorm:"type:longtext"`
-	NewsID uuid.UUID      `json:"news_id" gorm:"type:varchar(36)"`
+	NewsID uint           `json:"news_id" gorm:"index"`
+	News   News
 }
 
 type Tag struct {
 	gorm.Model
-	ID        uuid.UUID `json:"id" gorm:"type:varchar(36)"`
-	Name      string    `json:"name" gorm:"type:varchar(200);not null"`
-	NewsID    uuid.UUID `json:"news_id" gorm:"type:varchar(36);not null"`
-	Status    Status    `json:"status" gorm:"default:active"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID     uint   `json:"id" gorm:"primaryKey"`
+	Name   string `json:"name" gorm:"type:varchar(200);not null"`
+	NewsID uint   `json:"news_id" gorm:"index;not null"`
+	News   News
+	Status Status `json:"status" gorm:"default:active"`
 }
 
 type Author struct {
 	gorm.Model
-	ID          uuid.UUID      `json:"id" gorm:"type:varchar(36)"`
+	ID          uint           `json:"id" gorm:"primaryKey"`
 	Name        string         `json:"name" gorm:"type:varchar(200);not null"`
 	Designation sql.NullString `json:"designation" gorm:"type:varchar(150);default:null"`
 	Bio         sql.NullString `json:"bio" gorm:"type:longtext;default:null"`
@@ -129,6 +120,4 @@ type Author struct {
 	Email       sql.NullString `json:"email" gorm:"type:varchar(200);default:null"`
 	News        []News         `json:"news"`
 	Status      Status         `json:"status" gorm:"default:active"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
 }

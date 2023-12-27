@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/nchdatta/ecomili-golang/internal/app/services"
 	"github.com/nchdatta/ecomili-golang/internal/app/validations"
 	"github.com/nchdatta/ecomili-golang/internal/helpers"
@@ -54,7 +55,7 @@ func CreateRole(c *fiber.Ctx) error {
 }
 
 func UpdateRole(c *fiber.Ctx) error {
-	roleID := c.Params("id")
+	roleID := uuid.MustParse(c.Params("id"))
 
 	roleUpdate := validations.RoleUpdate{}
 	if err := c.BodyParser(&roleUpdate); err != nil {
@@ -78,7 +79,7 @@ func UpdateRole(c *fiber.Ctx) error {
 	return c.JSON(helpers.NewResponse(true, "Role Updated.", role))
 }
 func DeleteRole(c *fiber.Ctx) error {
-	roleID := c.Params("id")
+	roleID := uuid.MustParse(c.Params("id"))
 
 	role, err := services.DeleteRole(roleID)
 	if err != nil {
