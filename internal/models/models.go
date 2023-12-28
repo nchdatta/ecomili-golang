@@ -21,6 +21,10 @@ type User struct {
 	Role        Role
 	Infobite    []Infobite `json:"infobites" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Category    []Category `json:"categories" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 type Role struct {
@@ -29,6 +33,10 @@ type Role struct {
 	Name   string `json:"name" gorm:"uniqueIndex;type:varchar(100);not null"`
 	Status Status `json:"status" gorm:"type:enum('active', 'inactive');default:'active'"`
 	Users  []User `json:"users" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 type Infobite struct {
@@ -39,6 +47,10 @@ type Infobite struct {
 	UserID  uint           `json:"user_id" gorm:"index"`
 	User    User
 	Status  Status `gorm:"default:active"`
+
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 type Category struct {
@@ -53,6 +65,10 @@ type Category struct {
 	News      []News         `json:"news" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	UserID    uint           `json:"user_id" gorm:"index"`
 	User      User
+
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 type CategoryTag struct {
@@ -61,6 +77,10 @@ type CategoryTag struct {
 	Name       string `gorm:"uniqueIndex;type:varchar(150);not null"`
 	CategoryID uint   `json:"category_id" gorm:"index;default:null"`
 	Category   Category
+
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 type News struct {
@@ -89,6 +109,10 @@ type News struct {
 	Tags             []Tag          `json:"tags" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Images           []NewsImage    `json:"images" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Status           NewsStatus     `json:"status" gorm:"default:draft"`
+
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 type NewsImage struct {
@@ -97,6 +121,10 @@ type NewsImage struct {
 	Image  sql.NullString `json:"image" gorm:"type:longtext"`
 	NewsID uint           `json:"news_id" gorm:"index"`
 	News   News
+
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 type Tag struct {
@@ -106,6 +134,10 @@ type Tag struct {
 	NewsID uint   `json:"news_id" gorm:"index;not null"`
 	News   News
 	Status Status `json:"status" gorm:"default:active"`
+
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 type Author struct {
@@ -120,4 +152,8 @@ type Author struct {
 	Email       sql.NullString `json:"email" gorm:"type:varchar(200);default:null"`
 	News        []News         `json:"news" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Status      Status         `json:"status" gorm:"default:active"`
+
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }

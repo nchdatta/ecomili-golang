@@ -30,20 +30,19 @@ func GetUserByID(id int) (*models.User, error) {
 	return user, nil
 }
 func CreateUser(userCreate *validations.UserCreate) (*models.User, error) {
-	user := &models.User{
-		Name:     userCreate.Name,
-		Phone:    userCreate.Phone,
-		Password: userCreate.Password,
-		Email:    userCreate.Email,
-		RoleID:   uint(userCreate.RoleID),
-	}
-
-	if userCreate.Avatar.Valid {
-		user.Avatar = userCreate.Avatar
-	}
+	user := &models.User{}
 
 	if result := database.DBConn.Find(&user).Where("email = ?", userCreate.Email); result != nil {
 		return nil, errors.New("USER ALREADY EXISTS WITH THE EMAIL")
+	}
+
+	user.Name = userCreate.Name
+	user.Phone = userCreate.Phone
+	user.Password = userCreate.Password
+	user.Email = userCreate.Email
+	user.RoleID = uint(userCreate.RoleID)
+	if userCreate.Avatar.Valid {
+		user.Avatar = userCreate.Avatar
 	}
 
 	if err := database.DBConn.Create(&user).Error; err != nil {

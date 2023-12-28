@@ -31,15 +31,14 @@ func GetRoleByID(id int) (*models.Role, error) {
 	return role, nil
 }
 func CreateRole(roleCreate *validations.RoleCreate) (*models.Role, error) {
-	role := models.Role{
-		Name: roleCreate.Name,
-	}
+	role := models.Role{}
 
 	result := database.DBConn.Where("name = ?", roleCreate.Name).First(&role)
 	if result != nil {
 		return nil, errors.New("ROLE ALREADY EXISTS")
 	}
 
+	role.Name = roleCreate.Name
 	if err := database.DBConn.Create(&role).Error; err != nil {
 		return nil, err
 	}
