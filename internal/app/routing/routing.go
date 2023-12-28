@@ -28,4 +28,12 @@ func SetUpRoutes(app *fiber.App) {
 	user.Post("/create", controllers.CreateUser)
 	user.Put("/update/:id", controllers.UpdateUser)
 	user.Delete("/delete/:id", controllers.DeleteUser)
+
+	// Infobite Routes
+	infobite := api.Group("infobites")
+	infobite.Get("/", controllers.GetAllInfobites)
+	infobite.Get("/:id", controllers.GetInfobiteByID)
+	infobite.Post("/create", controllers.CreateInfobite)
+	infobite.Put("/update/:id", controllers.UpdateInfobite)
+	infobite.Delete("/delete/:id", controllers.DeleteInfobite)
 }

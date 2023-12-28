@@ -9,24 +9,24 @@ import (
 	"github.com/nchdatta/ecomili-golang/internal/helpers"
 )
 
-func AllUsers(c *fiber.Ctx) error {
-	users, err := services.GetAllUsers()
+func GetAllInfobites(c *fiber.Ctx) error {
+	infobites, err := services.GetAllInfobites()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
 			helpers.NewResponse(false, err.Error(), err.Error()),
 		)
 	}
-	return c.JSON(helpers.NewResponse(true, "All Users List", users))
+	return c.JSON(helpers.NewResponse(true, "All infobites List", infobites))
 }
-func GetUserByID(c *fiber.Ctx) error {
-	userId, err := strconv.Atoi(c.Params("id"))
+func GetInfobiteByID(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
 		)
 	}
 
-	role, err := services.GetUserByID(userId)
+	role, err := services.GetInfobiteByID(id)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
@@ -35,73 +35,73 @@ func GetUserByID(c *fiber.Ctx) error {
 	return c.JSON(helpers.NewResponse(true, "User Details", role))
 }
 
-func CreateUser(c *fiber.Ctx) error {
-	userCreate := validations.UserCreate{}
-	if err := c.BodyParser(&userCreate); err != nil {
+func CreateInfobite(c *fiber.Ctx) error {
+	infobiteCreate := validations.InfobiteCreate{}
+	if err := c.BodyParser(&infobiteCreate); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
 			helpers.NewResponse(false, "Invalid request payload", nil),
 		)
 	}
 
-	if err := validations.Validate.Struct(userCreate); err != nil {
+	if err := validations.Validate.Struct(infobiteCreate); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(
 			helpers.NewResponse(false, "Invalid User input", err.Error()),
 		)
 	}
 
-	createdUser, err := services.CreateUser(&userCreate)
+	createdInfote, err := services.CreateInfobite(&infobiteCreate)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
 		)
 	}
 	return c.Status(fiber.StatusCreated).JSON(
-		helpers.NewResponse(true, "User created successfully", createdUser),
+		helpers.NewResponse(true, "Infobite created successfully", createdInfote),
 	)
 }
 
-func UpdateUser(c *fiber.Ctx) error {
-	userId, err := strconv.Atoi(c.Params("id"))
+func UpdateInfobite(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
 		)
 	}
 
-	userUpdate := validations.UserUpdate{}
-	if err := c.BodyParser(&userUpdate); err != nil {
+	infobiteUpdate := validations.InfobiteUpdate{}
+	if err := c.BodyParser(&infobiteUpdate); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
 			helpers.NewResponse(false, "Invalid request payload", nil),
 		)
 	}
 
-	if err := validations.Validate.Struct(userUpdate); err != nil {
+	if err := validations.Validate.Struct(infobiteUpdate); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(
 			helpers.NewResponse(false, "Invalid User input", err.Error()),
 		)
 	}
 
-	user, err := services.UpdatedUser(userId, &userUpdate)
+	infobite, err := services.UpdateInfobite(id, &infobiteUpdate)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
 		)
 	}
-	return c.JSON(helpers.NewResponse(true, "User Updated.", user))
+	return c.JSON(helpers.NewResponse(true, "Infobite Updated.", infobite))
 }
-func DeleteUser(c *fiber.Ctx) error {
-	userId, err := strconv.Atoi(c.Params("id"))
+func DeleteInfobite(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
 		)
 	}
 
-	user, err := services.DeleteUser(userId)
+	infobite, err := services.DeleteInfobite(id)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
 		)
 	}
-	return c.JSON(helpers.NewResponse(true, "User Deleted.", user))
+	return c.JSON(helpers.NewResponse(true, "Infobite Deleted.", infobite))
 }

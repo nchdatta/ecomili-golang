@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/nchdatta/ecomili-golang/internal/app/validations"
 	"github.com/nchdatta/ecomili-golang/internal/database"
@@ -12,7 +13,7 @@ import (
 func GetAllUsers() (*[]models.User, error) {
 	users := []models.User{}
 
-	if err := database.DBConn.Find(&users).Error; err != nil {
+	if err := database.DBConn.Preload("Role").Find(&users).Error; err != nil {
 		return nil, err
 	}
 
@@ -21,7 +22,7 @@ func GetAllUsers() (*[]models.User, error) {
 func GetUserByID(id int) (*models.User, error) {
 	user := &models.User{}
 
-	result := database.DBConn.Where("id = ?", id).First(&user)
+	result := database.DBConn.Where("id = ?", id).Preload("Role").First(&user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, errors.New("USER NOT FOUND")
 	} else if result.Error != nil {
@@ -30,12 +31,17 @@ func GetUserByID(id int) (*models.User, error) {
 	return user, nil
 }
 func CreateUser(userCreate *validations.UserCreate) (*models.User, error) {
-	user := &models.User{}
+	var existingUser models.User
+	existErr := database.DBConn.Where("email = ?", strings.ToLower(userCreate.Email)).Find(&existingUser).Error
 
-	if result := database.DBConn.Find(&user).Where("email = ?", userCreate.Email); result != nil {
-		return nil, errors.New("USER ALREADY EXISTS WITH THE EMAIL")
+	if existingUser.Email != "" {
+		return nil, errors.New("User already exists with the email: " + userCreate.Email)
+	}
+	if existErr != nil {
+		return nil, existErr
 	}
 
+	user := &models.User{}
 	user.Name = userCreate.Name
 	user.Phone = userCreate.Phone
 	user.Password = userCreate.Password
@@ -48,13 +54,13 @@ func CreateUser(userCreate *validations.UserCreate) (*models.User, error) {
 	if err := database.DBConn.Create(&user).Error; err != nil {
 		return nil, err
 	}
-	return user, nil
+	return nil, nil
 }
 
 func UpdatedUser(id int, userUpdate *validations.UserUpdate) (*models.User, error) {
 	user := &models.User{}
 
-	result := database.DBConn.Where("id = ?", id).First(&user)
+	result := database.DBConn.Select("id").Where("id = ?", id).First(user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, errors.New("USER NOT FOUND")
 	} else if result.Error != nil {
@@ -74,7 +80,7 @@ func UpdatedUser(id int, userUpdate *validations.UserUpdate) (*models.User, erro
 	if err := database.DBConn.Save(&user).Error; err != nil {
 		return nil, err
 	}
-	return user, nil
+	return nil, nil
 }
 
 func DeleteUser(id int) (*models.User, error) {
@@ -87,8 +93,8 @@ func DeleteUser(id int) (*models.User, error) {
 		return nil, result.Error
 	}
 
-	if err := database.DBConn.Delete(&user).Where("id=?", id).Error; err != nil {
+	if err := database.DBConn.Delete(&user).Unscoped().Where("id=?", id).Error; err != nil {
 		return nil, err
 	}
-	return user, nil
+	return nil, nil
 }

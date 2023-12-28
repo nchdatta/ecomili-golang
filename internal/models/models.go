@@ -10,8 +10,8 @@ import (
 type User struct {
 	gorm.Model
 	ID          uint           `json:"id" gorm:"primaryKey;autoIncrement"`
-	Name        string         `json:"name" gorm:"uniqueIndex;type:varchar(200);not null"`
-	Phone       string         `json:"phone" gorm:"uniqueIndex;type:varchar(12)"`
+	Name        string         `json:"name" gorm:"type:varchar(200);not null"`
+	Phone       string         `json:"phone" gorm:"type:varchar(12)"`
 	Email       string         `json:"email" gorm:"uniqueIndex;type:varchar(200);not null"`
 	Password    string         `json:"password" gorm:"type:varchar(250);not null"`
 	Avatar      sql.NullString `json:"avatar" gorm:"default:null"`
