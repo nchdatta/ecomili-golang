@@ -45,4 +45,20 @@ func SetUpRoutes(app *fiber.App) {
 	category.Put("/update/:id", controllers.UpdateCategory)
 	category.Delete("/delete/:id", controllers.DeleteCategory)
 
+	// News Routes
+	news := api.Group("news")
+	news.Get("/", controllers.GetAllNews)
+	news.Get("/:id", controllers.GetNewsByID)
+	news.Post("/create", controllers.CreateNews)
+	news.Put("/update/:id", controllers.UpdateNews)
+	news.Delete("/delete/:id", controllers.DeleteNews)
+
+	// Author Routes
+	author := api.Group("authors")
+	author.Get("/", controllers.GetAllAuthors)
+	author.Get("/:id", controllers.GetAuthorByID)
+	author.Post("/create", controllers.CreateAuthor)
+	author.Put("/update/:id", controllers.UpdateAuthor)
+	author.Delete("/delete/:id", controllers.DeleteAuthor)
+
 }

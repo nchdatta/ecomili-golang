@@ -79,22 +79,21 @@ type News struct {
 	Slug             string         `json:"slug" gorm:"uniqueIndex;type:varchar(250);not null"`
 	Category         Category       `json:"category"`
 	CategoryID       uint           `json:"category_id" gorm:"index;default:null"`
+	Author           Author         `json:"author"`
 	AuthorID         uint           `json:"author_id" gorm:"default:null"`
 	FeaturedImage    sql.NullString `json:"featured_image"`
-	ThumbnailURL     sql.NullString `json:"thumbnail_url" gorm:"type:longtext"`
-	ShortDesc        sql.NullString `json:"short_desc" gorm:"type:longtext"`
-	Description      sql.NullString `json:"description" gorm:"type:longtext"`
-	ImgSourceURL     sql.NullString `json:"img_source_url" gorm:"type:longtext"`
-	OriginalNewsURL  sql.NullString `json:"original_news_url"`
-	NewsSource       NewsSource     `json:"news_source" gorm:"default:reuters"`
+	Thumbnail        sql.NullString `json:"thumbnail" gorm:"type:longtext"`
+	Excert           string         `json:"excert" gorm:"type:longtext"`
+	Description      string         `json:"description" gorm:"type:longtext"`
+	ImgSourceURL     string         `json:"img_source_url" gorm:"type:longtext"`
+	OriginalNewsURL  string         `json:"original_news_url"`
+	NewsSource       NewsSource     `json:"news_source" gorm:"default:local"`
 	PublishTimestamp time.Time      `json:"publish_timestamp"`
 	ViewCount        int            `json:"view_count" gorm:"type:int;default:0"`
 	ShareCount       int            `json:"share_count" gorm:"type:int;default:0"`
 	IsFeatured       bool           `json:"is_featured" gorm:"default:false"`
-	URI              sql.NullString `json:"uri" gorm:"uniqueIndex;type:varchar(250)"`
-	VersionCreated   time.Time      `json:"version_created"`
-	Language         *string        `json:"language" gorm:"type:varchar(20)"`
-	Type             *string        `json:"type" gorm:"type:varchar(20)"`
+	Language         string         `json:"language" gorm:"type:varchar(20);defalut:en"`
+	Type             string         `json:"type" gorm:"type:varchar(20);default:composite"`
 	Tags             []Tag          `json:"tags" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Images           []NewsImage    `json:"images" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Status           NewsStatus     `json:"status" gorm:"default:draft"`
@@ -110,9 +109,8 @@ type NewsImage struct {
 	NewsID uint           `json:"news_id" gorm:"index"`
 	News   News
 
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	DeletedAt *time.Time `json:"deleted_at"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Tag struct {
@@ -122,20 +120,19 @@ type Tag struct {
 	News   News
 	Status Status `json:"status" gorm:"default:active"`
 
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	DeletedAt *time.Time `json:"deleted_at"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Author struct {
 	ID          uint           `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name        string         `json:"name" gorm:"type:varchar(200);not null"`
-	Designation sql.NullString `json:"designation" gorm:"type:varchar(150);default:null"`
-	Bio         sql.NullString `json:"bio" gorm:"type:longtext;default:null"`
+	Designation string         `json:"designation" gorm:"type:varchar(150);default:null"`
+	Bio         string         `json:"bio" gorm:"type:longtext;default:null"`
 	Avatar      sql.NullString `json:"avatar" gorm:"type:longtext;default:null"`
-	Twitter     sql.NullString `json:"twitter" gorm:"type:varchar(200);default:null"`
-	Linkedin    sql.NullString `json:"linkedin" gorm:"type:varchar(200);default:null"`
-	Email       sql.NullString `json:"email" gorm:"type:varchar(200);default:null"`
+	Twitter     string         `json:"twitter" gorm:"type:varchar(200);default:null"`
+	Linkedin    string         `json:"linkedin" gorm:"type:varchar(200);default:null"`
+	Email       string         `json:"email" gorm:"type:varchar(200);default:null"`
 	News        []News         `json:"news" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Status      Status         `json:"status" gorm:"default:active"`
 
