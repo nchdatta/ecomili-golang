@@ -9,16 +9,16 @@ import (
 	"github.com/nchdatta/ecomili-golang/internal/helpers"
 )
 
-func GetAllInfobites(c *fiber.Ctx) error {
-	infobites, err := services.GetAllInfobites()
+func GetAllCategories(c *fiber.Ctx) error {
+	categories, err := services.GetAllCategories()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
 			helpers.NewResponse(false, err.Error(), err.Error()),
 		)
 	}
-	return c.JSON(helpers.NewResponse(true, "All infobites List", infobites))
+	return c.JSON(helpers.NewResponse(true, "All Categories List", categories))
 }
-func GetInfobiteByID(c *fiber.Ctx) error {
+func GetCategoryByID(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
@@ -26,41 +26,41 @@ func GetInfobiteByID(c *fiber.Ctx) error {
 		)
 	}
 
-	role, err := services.GetInfobiteByID(id)
+	category, err := services.GetCategoryByID(id)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
 		)
 	}
-	return c.JSON(helpers.NewResponse(true, "Infobite Details", role))
+	return c.JSON(helpers.NewResponse(true, "Category Details", category))
 }
 
-func CreateInfobite(c *fiber.Ctx) error {
-	infobiteCreate := validations.InfobiteCreate{}
-	if err := c.BodyParser(&infobiteCreate); err != nil {
+func CreateCategory(c *fiber.Ctx) error {
+	categoryCreate := validations.CategoryCreate{}
+	if err := c.BodyParser(&categoryCreate); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
 			helpers.NewResponse(false, "Invalid request payload", nil),
 		)
 	}
 
-	if err := validations.Validate.Struct(infobiteCreate); err != nil {
+	if err := validations.Validate.Struct(categoryCreate); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(
 			helpers.NewResponse(false, "Invalid User input", err.Error()),
 		)
 	}
 
-	createdInfote, err := services.CreateInfobite(&infobiteCreate)
+	createdCategory, err := services.CreateCategory(&categoryCreate)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
 		)
 	}
 	return c.Status(fiber.StatusCreated).JSON(
-		helpers.NewResponse(true, "Infobite created successfully", createdInfote),
+		helpers.NewResponse(true, "Category created successfully", createdCategory),
 	)
 }
 
-func UpdateInfobite(c *fiber.Ctx) error {
+func UpdateCategory(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
@@ -68,20 +68,20 @@ func UpdateInfobite(c *fiber.Ctx) error {
 		)
 	}
 
-	infobiteUpdate := validations.InfobiteUpdate{}
-	if err := c.BodyParser(&infobiteUpdate); err != nil {
+	categoryUpdate := validations.CategoryUpdate{}
+	if err := c.BodyParser(&categoryUpdate); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
 			helpers.NewResponse(false, "Invalid request payload", nil),
 		)
 	}
 
-	if err := validations.Validate.Struct(infobiteUpdate); err != nil {
+	if err := validations.Validate.Struct(categoryUpdate); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(
-			helpers.NewResponse(false, "Invalid User input", err.Error()),
+			helpers.NewResponse(false, "Invalid Category input", err.Error()),
 		)
 	}
 
-	infobite, err := services.UpdateInfobite(id, &infobiteUpdate)
+	infobite, err := services.UpdateCategory(id, &categoryUpdate)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
@@ -89,7 +89,7 @@ func UpdateInfobite(c *fiber.Ctx) error {
 	}
 	return c.JSON(helpers.NewResponse(true, "Infobite Updated.", infobite))
 }
-func DeleteInfobite(c *fiber.Ctx) error {
+func DeleteCategory(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
@@ -97,11 +97,11 @@ func DeleteInfobite(c *fiber.Ctx) error {
 		)
 	}
 
-	infobite, err := services.DeleteInfobite(id)
+	category, err := services.DeleteCategory(id)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(
 			helpers.NewResponse(false, err.Error(), nil),
 		)
 	}
-	return c.JSON(helpers.NewResponse(true, "Infobite Deleted.", infobite))
+	return c.JSON(helpers.NewResponse(true, "Category Deleted.", category))
 }

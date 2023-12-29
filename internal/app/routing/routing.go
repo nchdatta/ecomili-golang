@@ -36,4 +36,13 @@ func SetUpRoutes(app *fiber.App) {
 	infobite.Post("/create", controllers.CreateInfobite)
 	infobite.Put("/update/:id", controllers.UpdateInfobite)
 	infobite.Delete("/delete/:id", controllers.DeleteInfobite)
+
+	// category Routes
+	category := api.Group("categories")
+	category.Get("/", controllers.GetAllCategories)
+	category.Get("/:id", controllers.GetCategoryByID)
+	category.Post("/create", controllers.CreateCategory)
+	category.Put("/update/:id", controllers.UpdateCategory)
+	category.Delete("/delete/:id", controllers.DeleteCategory)
+
 }

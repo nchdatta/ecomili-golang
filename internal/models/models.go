@@ -3,12 +3,9 @@ package models
 import (
 	"database/sql"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
 	ID          uint           `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name        string         `json:"name" gorm:"type:varchar(200);not null"`
 	Phone       string         `json:"phone" gorm:"type:varchar(12)"`
@@ -20,7 +17,6 @@ type User struct {
 	RoleID      uint           `json:"role_id" gorm:"index;default:null"`
 	Role        Role
 	Infobite    []Infobite `json:"infobites" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Category    []Category `json:"categories" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
@@ -28,7 +24,6 @@ type User struct {
 }
 
 type Role struct {
-	gorm.Model
 	ID     uint   `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name   string `json:"name" gorm:"uniqueIndex;type:varchar(100);not null"`
 	Status Status `json:"status" gorm:"type:enum('active', 'inactive');default:'active'"`
@@ -40,7 +35,6 @@ type Role struct {
 }
 
 type Infobite struct {
-	gorm.Model
 	ID      uint           `json:"id" gorm:"primaryKey;autoIncrement"`
 	Title   string         `json:"title" gorm:"uniqueIndex;type:varchar(150);not null"`
 	Picture sql.NullString `json:"picture" gorm:"type:longtext;default:null"`
@@ -54,17 +48,14 @@ type Infobite struct {
 }
 
 type Category struct {
-	gorm.Model
 	ID        uint           `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name      string         `json:"name" gorm:"uniqueIndex;type:varchar(200);not null"`
 	Icon      sql.NullString `json:"icon" gorm:"type:longtext;default:null"`
 	Tags      []CategoryTag  `json:"tags" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	IsSpecial bool           `json:"is_special" gorm:"default:false"`
-	ParentID  uint           `json:"parent_id" gorm:"default:null"`
+	ParentID  *uint          `json:"parent_id" gorm:"default:null"`
 	Status    Status         `json:"status" gorm:"default:active"`
-	News      []News         `json:"news" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	UserID    uint           `json:"user_id" gorm:"index"`
-	User      User
+	News      []News         `json:"news" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
@@ -72,7 +63,6 @@ type Category struct {
 }
 
 type CategoryTag struct {
-	gorm.Model
 	ID         uint   `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name       string `gorm:"uniqueIndex;type:varchar(150);not null"`
 	CategoryID uint   `json:"category_id" gorm:"index;default:null"`
@@ -84,7 +74,6 @@ type CategoryTag struct {
 }
 
 type News struct {
-	gorm.Model
 	ID               uint           `json:"id" gorm:"primaryKey;autoIncrement"`
 	Title            string         `json:"title" gorm:"type:varchar(250);not null"`
 	Slug             string         `json:"slug" gorm:"uniqueIndex;type:varchar(250);not null"`
@@ -116,7 +105,6 @@ type News struct {
 }
 
 type NewsImage struct {
-	gorm.Model
 	ID     uint           `json:"id" gorm:"primaryKey;autoIncrement"`
 	Image  sql.NullString `json:"image" gorm:"type:longtext"`
 	NewsID uint           `json:"news_id" gorm:"index"`
@@ -128,7 +116,6 @@ type NewsImage struct {
 }
 
 type Tag struct {
-	gorm.Model
 	ID     uint   `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name   string `json:"name" gorm:"type:varchar(200);not null"`
 	NewsID uint   `json:"news_id" gorm:"index;not null"`
@@ -141,7 +128,6 @@ type Tag struct {
 }
 
 type Author struct {
-	gorm.Model
 	ID          uint           `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name        string         `json:"name" gorm:"type:varchar(200);not null"`
 	Designation sql.NullString `json:"designation" gorm:"type:varchar(150);default:null"`
