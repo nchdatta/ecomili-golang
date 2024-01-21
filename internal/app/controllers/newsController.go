@@ -10,7 +10,20 @@ import (
 )
 
 func GetAllNews(c *fiber.Ctx) error {
-	newsList, err := services.GetAllNews()
+	// Page & Limit Query
+	page, err := strconv.Atoi(c.Query("page", "1"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			helpers.NewResponse(false, err.Error(), nil),
+		)
+	}
+	pageSize, err := strconv.Atoi(c.Query("limit", "10"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			helpers.NewResponse(false, err.Error(), nil),
+		)
+	}
+	newsList, err := services.GetAllNews(page, pageSize)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
 			helpers.NewResponse(false, err.Error(), err.Error()),

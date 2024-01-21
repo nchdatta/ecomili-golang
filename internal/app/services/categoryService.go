@@ -11,14 +11,33 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAllCategories() (*[]models.Category, error) {
+type CategoryListResponse struct {
+	Categories  []models.Category `json:"categories"`
+	Pages       int               `json:"pages"`
+	CurrentPage int               `json:"current_page"`
+	Limit       int               `json:"offset"`
+}
+
+func GetAllCategories(page int, pageSize int) (*CategoryListResponse, error) {
 	categories := []models.Category{}
 
-	if err := database.DBConn.Preload("Tags").Find(&categories).Error; err != nil {
+	offset := (page - 1) * pageSize
+
+	var totalFound int64
+	database.DBConn.Model(&models.Category{}).Count(&totalFound)
+
+	if err := database.DBConn.Preload("Tags").Offset(offset).Limit(pageSize).Find(&categories).Error; err != nil {
 		return nil, err
 	}
 
-	return &categories, nil
+	response := &CategoryListResponse{
+		Categories:  categories,
+		Pages:       int(totalFound),
+		CurrentPage: page,
+		Limit:       pageSize,
+	}
+
+	return response, nil
 }
 func GetCategoryByID(id int) (*models.Category, error) {
 	category := &models.Category{}

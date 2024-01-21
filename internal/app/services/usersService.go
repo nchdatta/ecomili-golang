@@ -10,14 +10,33 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAllUsers() (*[]models.User, error) {
+type UserListResponse struct {
+	Users       []models.User `json:"users"`
+	TotalFound  int           `json:"total_found"`
+	CurrentPage int           `json:"current_page"`
+	Limit       int           `json:"offset"`
+}
+
+func GetAllUsers(page int, pageSize int) (*UserListResponse, error) {
 	users := []models.User{}
 
-	if err := database.DBConn.Preload("Role").Find(&users).Error; err != nil {
+	offset := (page - 1) * pageSize
+
+	var totalFound int64
+	database.DBConn.Model(&models.User{}).Count(&totalFound)
+
+	if err := database.DBConn.Preload("Role").Offset(offset).Limit(pageSize).Find(&users).Error; err != nil {
 		return nil, err
 	}
 
-	return &users, nil
+	response := &UserListResponse{
+		Users:       users,
+		TotalFound:  int(totalFound),
+		CurrentPage: page,
+		Limit:       pageSize,
+	}
+
+	return response, nil
 }
 func GetUserByID(id int) (*models.User, error) {
 	user := &models.User{}

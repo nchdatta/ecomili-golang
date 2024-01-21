@@ -10,7 +10,21 @@ import (
 )
 
 func AllUsers(c *fiber.Ctx) error {
-	users, err := services.GetAllUsers()
+	// Page & Limit Query
+	page, err := strconv.Atoi(c.Query("page", "1"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			helpers.NewResponse(false, err.Error(), nil),
+		)
+	}
+	pageSize, err := strconv.Atoi(c.Query("limit", "10"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			helpers.NewResponse(false, err.Error(), nil),
+		)
+	}
+
+	users, err := services.GetAllUsers(page, pageSize)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
 			helpers.NewResponse(false, err.Error(), err.Error()),

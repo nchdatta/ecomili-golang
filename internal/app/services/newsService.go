@@ -11,14 +11,33 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAllNews() (*[]models.News, error) {
+type NewsListResponse struct {
+	News        []models.News `json:"news"`
+	Pages       int           `json:"pages"`
+	CurrentPage int           `json:"current_page"`
+	Limit       int           `json:"offset"`
+}
+
+func GetAllNews(page int, pageSize int) (*NewsListResponse, error) {
 	newsList := []models.News{}
 
-	if err := database.DBConn.Preload("Tags").Preload("Images").Find(&newsList).Error; err != nil {
+	offset := (page - 1) * pageSize
+
+	var totalFound int64
+	database.DBConn.Model(&models.News{}).Count(&totalFound)
+
+	if err := database.DBConn.Preload("Tags").Preload("Images").Offset(offset).Limit(pageSize).Find(&newsList).Error; err != nil {
 		return nil, err
 	}
 
-	return &newsList, nil
+	response := &NewsListResponse{
+		News:        newsList,
+		Pages:       int(totalFound),
+		CurrentPage: page,
+		Limit:       pageSize,
+	}
+
+	return response, nil
 }
 func GetNewsByID(id int) (*models.News, error) {
 	news := &models.News{}

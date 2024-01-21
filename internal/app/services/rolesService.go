@@ -10,14 +10,32 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAllRoles() ([]models.Role, error) {
+type RoleListResponse struct {
+	Roles       []models.Role `json:"roles"`
+	Pages       int           `json:"pages"`
+	CurrentPage int           `json:"current_page"`
+	Limit       int           `json:"offset"`
+}
+
+func GetAllRoles(page int, pageSize int) (*RoleListResponse, error) {
 	roles := []models.Role{}
 
-	if err := database.DBConn.Find(&roles).Error; err != nil {
+	offset := (page - 1) * pageSize
+	var totalFound int64
+	database.DBConn.Model(&models.Role{}).Count(&totalFound)
+
+	if err := database.DBConn.Offset(offset).Limit(pageSize).Find(&roles).Error; err != nil {
 		return nil, err
 	}
 
-	return roles, nil
+	response := &RoleListResponse{
+		Roles:       roles,
+		Pages:       int(totalFound),
+		CurrentPage: page,
+		Limit:       pageSize,
+	}
+
+	return response, nil
 }
 func GetRoleByID(id int) (*models.Role, error) {
 	role := &models.Role{}

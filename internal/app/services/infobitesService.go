@@ -11,14 +11,33 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAllInfobites() (*[]models.Infobite, error) {
+type InfobiteListResponse struct {
+	Infobites   []models.Infobite `json:"infobites"`
+	Pages       int               `json:"pages"`
+	CurrentPage int               `json:"current_page"`
+	Limit       int               `json:"offset"`
+}
+
+func GetAllInfobites(page int, pageSize int) (*InfobiteListResponse, error) {
 	infobites := []models.Infobite{}
 
-	if err := database.DBConn.Find(&infobites).Error; err != nil {
+	offset := (page - 1) * pageSize
+
+	var totalFound int64
+	database.DBConn.Model(&models.Infobite{}).Count(&totalFound)
+
+	if err := database.DBConn.Offset(offset).Limit(pageSize).Find(&infobites).Error; err != nil {
 		return nil, err
 	}
 
-	return &infobites, nil
+	response := &InfobiteListResponse{
+		Infobites:   infobites,
+		Pages:       int(totalFound),
+		CurrentPage: page,
+		Limit:       pageSize,
+	}
+
+	return response, nil
 }
 func GetInfobiteByID(id int) (*models.Infobite, error) {
 	infobite := &models.Infobite{}

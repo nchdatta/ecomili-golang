@@ -11,14 +11,33 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAllAuthors() ([]models.Author, error) {
-	author := []models.Author{}
+type AuthorListResponse struct {
+	Authors     []models.Author `json:"authors"`
+	Pages       int             `json:"pages"`
+	CurrentPage int             `json:"current_page"`
+	Limit       int             `json:"offset"`
+}
 
-	if err := database.DBConn.Find(&author).Error; err != nil {
+func GetAllAuthors(page, pageSize int) (*AuthorListResponse, error) {
+	authors := []models.Author{}
+
+	offset := (page - 1) * pageSize
+
+	var totalFound int64
+	database.DBConn.Model(&models.Author{}).Count(&totalFound)
+
+	if err := database.DBConn.Offset(offset).Limit(pageSize).Find(&authors).Error; err != nil {
 		return nil, err
 	}
 
-	return author, nil
+	response := &AuthorListResponse{
+		Authors:     authors,
+		Pages:       int(totalFound),
+		CurrentPage: page,
+		Limit:       pageSize,
+	}
+
+	return response, nil
 }
 func GetAuthorByID(id int) (*models.Author, error) {
 	author := &models.Author{}

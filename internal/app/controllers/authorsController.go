@@ -10,7 +10,22 @@ import (
 )
 
 func GetAllAuthors(c *fiber.Ctx) error {
-	authors, err := services.GetAllAuthors()
+	// Page & Limit Query
+	page, err := strconv.Atoi(c.Query("page", "1"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			helpers.NewResponse(false, err.Error(), nil),
+		)
+	}
+
+	pageSize, err := strconv.Atoi(c.Query("limit", "10"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			helpers.NewResponse(false, err.Error(), nil),
+		)
+	}
+
+	authors, err := services.GetAllAuthors(page, pageSize)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
 			helpers.NewResponse(false, err.Error(), err.Error()),
