@@ -117,3 +117,15 @@ func DeleteUser(id int) (*models.User, error) {
 	}
 	return nil, nil
 }
+
+func GetUserByEmail(email string) (*models.User, error) {
+	user := &models.User{}
+
+	result := database.DBConn.Where("email = ?", email).Preload("Role").First(&user)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, errors.New("USER NOT FOUND")
+	} else if result.Error != nil {
+		return nil, result.Error
+	}
+	return user, nil
+}

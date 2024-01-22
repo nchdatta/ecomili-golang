@@ -30,6 +30,7 @@ func AllUsers(c *fiber.Ctx) error {
 			helpers.NewResponse(false, err.Error(), err.Error()),
 		)
 	}
+
 	return c.JSON(helpers.NewResponse(true, "All Users List", users))
 }
 func GetUserByID(c *fiber.Ctx) error {

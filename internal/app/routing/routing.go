@@ -3,6 +3,7 @@ package routing
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/nchdatta/ecomili-golang/internal/app/controllers"
+	"github.com/nchdatta/ecomili-golang/internal/middlewares"
 )
 
 // Declering all the routes
@@ -13,8 +14,13 @@ func SetUpRoutes(app *fiber.App) {
 		return c.SendString("Hello, World!")
 	})
 
+	// Auth Routes
+	auth := api.Group("auth")
+	auth.Post("/login", controllers.Login)
+
 	// Role Routes
 	role := api.Group("roles")
+	role.Use(middlewares.JWTMiddleware())
 	role.Get("/", controllers.AllRoles)
 	role.Get("/:id", controllers.GetRoleByID)
 	role.Post("/create", controllers.CreateRole)
